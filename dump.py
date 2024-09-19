@@ -712,3 +712,27 @@ def main_optimized_example_with_elbow_detection():
 
 if __name__ == "__main__":
     main_optimized_example_with_elbow_detection()
+
+import numpy as np
+from scipy.optimize import linear_sum_assignment
+from sklearn.metrics import confusion_matrix
+
+# Example true labels and cluster assignments
+true_labels = np.array([...])  # Replace with your true class labels (e.g., 0, 1, 2)
+cluster_labels = np.array([...])  # Replace with your cluster assignments (e.g., 0, 1, 2)
+
+# Step 1: Create the contingency matrix
+contingency_matrix = confusion_matrix(true_labels, cluster_labels)
+
+# Step 2: Apply the Hungarian Algorithm
+# Since we want to maximize the matches, we convert it to a cost matrix by subtracting from the max value
+cost_matrix = contingency_matrix.max() - contingency_matrix
+row_ind, col_ind = linear_sum_assignment(cost_matrix)
+
+# Step 3: Calculate the accuracy
+total_correct = contingency_matrix[row_ind, col_ind].sum()
+total_instances = contingency_matrix.sum()
+accuracy = total_correct / total_instances
+
+print(f"Optimal Accuracy: {accuracy * 100:.2f}%")
+
