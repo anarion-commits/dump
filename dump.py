@@ -736,3 +736,79 @@ accuracy = total_correct / total_instances
 
 print(f"Optimal Accuracy: {accuracy * 100:.2f}%")
 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# For reproducibility
+np.random.seed(42)
+
+# Define cluster specifications
+clusters = {
+    0: {
+        'mean': [-0.02199, 0.22, 0.22],
+        'count': 678,
+        'std': [0.005, 0.05, 0.05]  # Assumed standard deviations
+    },
+    1: {
+        'outlier': [-0.18474, -30, 1.049],
+        'count': 1
+    },
+    2: {
+        'mean': [-0.00412, 0.061, 0.054],
+        'count': 1294,
+        'std': [0.005, 0.05, 0.05]
+    },
+    3: {
+        'mean': [-0.01, -8.78e-07, 5.65e-06],
+        'count': 855,
+        'std': [0.005, 0.05, 0.05]
+    },
+    4: {
+        'mean': [-0.43, -0.186, 0.43],
+        'count': 129,
+        'std': [0.01, 0.05, 0.05]
+    }
+}
+
+# Initialize empty lists to store data
+data = {
+    'slope_iar_dist_to_1st': [],
+    'slope_top_3_iar_rank': [],
+    'slope_lag_drr': [],
+    'cluster': []
+}
+
+# Generate data for each cluster
+for cluster_id, specs in clusters.items():
+    if cluster_id == 1:
+        # Add the outlier
+        outlier = specs['outlier']
+        data['slope_iar_dist_to_1st'].append(outlier[0])
+        data['slope_top_3_iar_rank'].append(outlier[1])
+        data['slope_lag_drr'].append(outlier[2])
+        data['cluster'].append(cluster_id)
+    else:
+        mean = specs['mean']
+        count = specs['count']
+        std = specs['std']
+        # Generate normally distributed data
+        cluster_data = np.random.normal(loc=mean, scale=std, size=(count, 3))
+        data['slope_iar_dist_to_1st'].extend(cluster_data[:, 0])
+        data['slope_top_3_iar_rank'].extend(cluster_data[:, 1])
+        data['slope_lag_drr'].extend(cluster_data[:, 2])
+        data['cluster'].extend([cluster_id]*count)
+
+# Create a DataFrame
+df = pd.DataFrame(data)
+
+# Shuffle the DataFrame to mix clusters
+df = df.sample(frac=1, random_state=42).reset_index(drop=True)
+
+# Display basic information about the generated data
+print("Generated DataFrame:")
+print(df.head())
+print("\nCluster Counts:")
+print(df['cluster'].value_counts().sort_index())
+
