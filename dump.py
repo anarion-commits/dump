@@ -5,6 +5,55 @@ from sklearn.metrics import silhouette_samples
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+Clustering is an essential exploratory tool, but as datasets grow in size and complexity, scaling and improving clustering methods becomes critical. This section explores two advanced topics: speeding up K-means and using proper dimensionality reduction techniques to improve clustering outcomes.
+1. Speeding Up K-Means
+
+K-means is computationally expensive, especially with large datasets or high-dimensional data. Here are some approaches to make it faster without sacrificing too much quality:
+
+1.1 Initialization Methods
+
+    Poor initialization of centroids can lead to slow convergence or poor clustering.
+    Using K-means++ for smart centroid initialization reduces iterations and improves results.
+
+from sklearn.cluster import KMeans
+import time
+
+# Timing Standard K-means
+start = time.time()
+kmeans_standard = KMeans(n_clusters=5, init="random", random_state=42, max_iter=300)
+kmeans_standard.fit(data.drop(columns=["class"]))
+print(f"Standard K-means Time: {time.time() - start:.4f} seconds")
+
+# Timing K-means++
+start = time.time()
+kmeans_plus = KMeans(n_clusters=5, init="k-means++", random_state=42, max_iter=300)
+kmeans_plus.fit(data.drop(columns=["class"]))
+print(f"K-means++ Time: {time.time() - start:.4f} seconds")
+
+Key Insight:
+
+    K-means++ often produces better clusters in less time because it chooses centroids that are more spread out initially.
+
+1.2 Mini-Batch K-Means Mini-Batch K-means reduces computational load by using small, random subsets (batches) of the dataset for each iteration.
+
+from sklearn.cluster import MiniBatchKMeans
+
+# Mini-Batch K-means
+start = time.time()
+mini_batch_kmeans = MiniBatchKMeans(n_clusters=5, batch_size=100, random_state=42)
+mini_batch_kmeans.fit(data.drop(columns=["class"]))
+print(f"Mini-Batch K-means Time: {time.time() - start:.4f} seconds")
+
+Key Insight:
+
+    While Mini-Batch K-means sacrifices some accuracy, it’s significantly faster and scales well for large datasets.
+
+1.3 Accelerated Algorithms Libraries like FAISS or H2O provide highly optimized implementations of K-means using advanced indexing techniques (e.g., KD-trees, HNSW).
+2. Proper Dimensionality Reduction
+
+High-dimensional data can hinder clustering algorithms by introducing noise and computational challenges. Dimensionality reduction techniques help by projecting data into a lower-dimensional space while preserving meaningful structure.
+
 # Compute silhouette scores for each point
 silhouette_vals = silhouette_samples(data.drop(columns=['class']), labels)
 
