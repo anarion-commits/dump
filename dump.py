@@ -1,6 +1,62 @@
 import numpy as np
 from sklearn.metrics import confusion_matrix
 
+from sklearn.metrics import silhouette_samples
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Compute silhouette scores for each point
+silhouette_vals = silhouette_samples(data.drop(columns=['class']), labels)
+
+# Create the silhouette diagram
+fig, ax = plt.subplots()
+y_lower, y_upper = 0, 0
+for i in range(3):  # Number of clusters
+    cluster_silhouette_vals = silhouette_vals[labels == i]
+    cluster_silhouette_vals.sort()
+    y_upper += len(cluster_silhouette_vals)
+    ax.barh(range(y_lower, y_upper), cluster_silhouette_vals, edgecolor='none')
+    y_lower += len(cluster_silhouette_vals)
+
+ax.axvline(x=silhouette_avg, color="red", linestyle="--")
+ax.set_xlabel("Silhouette Coefficient")
+ax.set_ylabel("Cluster")
+plt.title("Silhouette Diagram")
+plt.show()
+
+from sklearn.utils import resample
+from sklearn.metrics import adjusted_rand_score
+
+
+
+# Stability check with resampling
+subset1 = resample(data.drop(columns=['class']), random_state=42)
+subset2 = resample(data.drop(columns=['class']), random_state=43)
+
+# Re-cluster both subsets
+labels1 = kmeans.fit_predict(subset1)
+labels2 = kmeans.fit_predict(subset2)
+
+# Measure consistency using Adjusted Rand Index (ARI)
+stability_score = adjusted_rand_score(labels1, labels2)
+print(f"Stability Score (ARI): {stability_score:.2f}")
+
+
+import seaborn as sns
+
+# Plotting clusters using the first two features
+plt.figure(figsize=(8, 6))
+sns.scatterplot(
+    x=data['compactness'], y=data['circularity'], hue=labels, palette='viridis'
+)
+plt.title("Clusters Visualization")
+plt.xlabel("Compactness")
+plt.ylabel("Circularity")
+plt.legend(title="Cluster")
+plt.show()
+
+
+
 def multi_cluster_accuracy(true_labels, cluster_labels):
     contingency_matrix = confusion_matrix(true_labels, cluster_labels)
     # Assign each cluster to the class with the maximum count
