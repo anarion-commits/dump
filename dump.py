@@ -6,6 +6,55 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+. PCA as a Preprocessing Step
+
+PCA is a valid preprocessing step for clustering because:
+
+    It preserves global distances in the data.
+    It removes noise and collinearity by reducing the dimensionality while retaining most of the variance.
+
+2. t-SNE and UMAP for Visualization Only
+
+    t-SNE and UMAP are excellent tools for visualizing clusters after they have been formed in the original high-dimensional space.
+    They should not be used as preprocessing steps for clustering because they distort global structures to emphasize local relationships.
+
+
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+import umap
+import matplotlib.pyplot as plt
+
+# Step 1: Apply PCA for noise reduction (optional)
+pca = PCA(n_components=10)  # Retain 10 principal components
+data_pca = pca.fit_transform(data.drop(columns=["class"]))
+
+# Step 2: Perform clustering in the PCA-reduced space
+kmeans = KMeans(n_clusters=5, random_state=42)
+labels = kmeans.fit_predict(data_pca)
+
+# Step 3: Visualize the clusters in 2D with t-SNE or UMAP
+# 3.1: Using t-SNE
+tsne = TSNE(n_components=2, random_state=42)
+data_tsne = tsne.fit_transform(data_pca)
+
+plt.scatter(data_tsne[:, 0], data_tsne[:, 1], c=labels, cmap="viridis", s=50)
+plt.title("t-SNE Visualization of Clusters")
+plt.xlabel("t-SNE Component 1")
+plt.ylabel("t-SNE Component 2")
+plt.show()
+
+# 3.2: Using UMAP
+umap_reducer = umap.UMAP(n_neighbors=15, min_dist=0.1, random_state=42)
+data_umap = umap_reducer.fit_transform(data_pca)
+
+plt.scatter(data_umap[:, 0], data_umap[:, 1], c=labels, cmap="viridis", s=50)
+plt.title("UMAP Visualization of Clusters")
+plt.xlabel("UMAP Component 1")
+plt.ylabel("UMAP Component 2")
+plt.show()
+
+
 Clustering is an essential exploratory tool, but as datasets grow in size and complexity, scaling and improving clustering methods becomes critical. This section explores two advanced topics: speeding up K-means and using proper dimensionality reduction techniques to improve clustering outcomes.
 1. Speeding Up K-Means
 
